@@ -1,0 +1,969 @@
+openapi: 3.0.3
+info:
+  title: Vehicle Management Service API
+  description: |
+    RESTful веб-сервис для управления коллекцией транспортных средств.
+    
+    Сервис предоставляет полный набор операций CRUD для работы с объектами Vehicle,
+    а также дополнительные операции поиска и фильтрации.
+    
+    ## Основные возможности:
+    - Создание, чтение, обновление и удаление транспортных средств
+    - Получение списка с поддержкой пагинации, сортировки и фильтрации
+    - Поиск по подстроке в названии
+    - Поиск по началу названия
+    - Фильтрация по типу топлива
+  version: 1.0.0
+
+
+servers:
+  - url: http://localhost:313233/api/v1
+    description: Helios
+
+tags:
+  - name: vehicles
+    description: Операции с транспортными средствами
+  - name: search
+    description: Специальные операции поиска
+
+paths:
+  /vehicles:
+    get:
+      tags:
+        - vehicles
+      summary: Получить список транспортных средств
+      description: |
+        Возвращает массив объектов Vehicle с поддержкой:
+        - **Пагинации** (page, size)
+        - **Сортировки** по любому полю (sort)
+        - **Фильтрации** по любой комбинации полей
+        
+        Примеры использования:
+        - `?page=0&size=10` - первая страница, 10 элементов
+        - `?sortBy=name&sortOrder=asc` - сортировка по имени по возрастанию
+        - `?sortBy=enginePower&sortOrder=desc` - сортировка по мощности по убыванию
+        - `?name=Toyota&fuelType=DIESEL` - фильтрация по имени и типу топлива
+        - `?sortBy=creationDate&sortOrder=desc&page=0&size=20` - новые записи первыми с пагинацией
+      operationId: getVehicles
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          example: 0
+        - name: size
+          in: query
+          description: Размер страницы
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+        - name: sortBy
+          in: query
+          description: |
+            Поле для сортировки результатов.
+            
+            Доступные значения:
+            - `id` - по идентификатору
+            - `name` - по названию
+            - `enginePower` - по мощности двигателя
+            - `numberOfWheels` - по количеству колес
+            - `distanceTravelled` - по пройденному расстоянию
+            - `creationDate` - по дате создания
+            - `coordinatesX` - по координате X
+            - `coordinatesY` - по координате Y
+          required: false
+          schema:
+            type: string
+            enum:
+              - id
+              - name
+              - enginePower
+              - numberOfWheels
+              - distanceTravelled
+              - creationDate
+              - coordinatesX
+              - coordinatesY
+          example: name
+        - name: sortOrder
+          in: query
+          description: |
+            Порядок сортировки.
+            
+            Значения:
+            - `asc` - по возрастанию (ascending)
+            - `desc` - по убыванию (descending)
+            
+            По умолчанию используется `asc`.
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
+          example: asc
+        - name: name
+          in: query
+          description: Фильтр по имени (точное совпадение)
+          required: false
+          schema:
+            type: string
+        - name: enginePower
+          in: query
+          description: Фильтр по мощности двигателя
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: numberOfWheels
+          in: query
+          description: Фильтр по количеству колес
+          required: false
+          schema:
+            type: integer
+        - name: distanceTravelled
+          in: query
+          description: Фильтр по пройденному расстоянию
+          required: false
+          schema:
+            type: integer
+        - name: fuelType
+          in: query
+          description: Фильтр по типу топлива
+          required: false
+          schema:
+            $ref: '#/components/schemas/FuelType'
+        - name: coordinatesX
+          in: query
+          description: Фильтр по координате X
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: coordinatesY
+          in: query
+          description: Фильтр по координате Y
+          required: false
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Успешный ответ со списком транспортных средств
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Vehicle'
+                  page:
+                    type: integer
+                    description: Текущая страница
+                  size:
+                    type: integer
+                    description: Размер страницы
+                  totalElements:
+                    type: integer
+                    description: Общее количество элементов
+                  totalPages:
+                    type: integer
+                    description: Общее количество страниц
+              examples:
+                success:
+                  summary: Пример успешного ответа
+                  value:
+                    content:
+                      - id: 1
+                        name: "Toyota Camry"
+                        coordinates:
+                          x: 45.5
+                          y: 123.456
+                        creationDate: "2025-01-15"
+                        enginePower: 249.0
+                        numberOfWheels: 4
+                        distanceTravelled: 50000
+                        fuelType: "DIESEL"
+                    page: 0
+                    size: 20
+                    totalElements: 1
+                    totalPages: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        
+    
+    post:
+      tags:
+        - vehicles
+      summary: Создать новое транспортное средство
+      description: |
+        Создает новый объект Vehicle в коллекции.
+        
+        **Поля id и creationDate генерируются автоматически.**
+        
+        Валидация:
+        - name: не может быть null или пустой строкой
+        - coordinates: не может быть null
+        - enginePower: должно быть больше 0
+        - numberOfWheels: если указано, должно быть больше 0
+        - distanceTravelled: если указано, должно быть больше 0
+        - coordinates.x: не может быть null, максимум 61
+      operationId: createVehicle
+      requestBody:
+        description: Данные создаваемого транспортного средства
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCreateRequest'
+            examples:
+              car:
+                summary: Легковой автомобиль
+                value:
+                  name: "Toyota Camry"
+                  coordinates:
+                    x: 45.5
+                    y: 123.456
+                  enginePower: 249.0
+                  numberOfWheels: 4
+                  distanceTravelled: 50000
+                  fuelType: "DIESEL"
+              truck:
+                summary: Грузовик
+                value:
+                  name: "Volvo FH16"
+                  coordinates:
+                    x: 60.0
+                    y: 200.0
+                  enginePower: 750.0
+                  numberOfWheels: 18
+                  distanceTravelled: 250000
+                  fuelType: "DIESEL"
+      responses:
+        '201':
+          description: Транспортное средство успешно создано
+          headers:
+            Location:
+              description: URL созданного ресурса
+              schema:
+                type: string
+              example: /api/v1/vehicles/123
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+              example:
+                id: 123
+                name: "Toyota Camry"
+                coordinates:
+                  x: 45.5
+                  y: 123.456
+                creationDate: "2025-10-03"
+                enginePower: 249.0
+                numberOfWheels: 4
+                distanceTravelled: 50000
+                fuelType: "DIESEL"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Конфликт - транспортное средство с таким именем уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Conflict"
+                message: "Vehicle with name 'Toyota Camry' already exists"
+                timestamp: "2025-10-03T12:00:00Z"
+        '422':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Ошибка валидации
+                  value:
+                    error: "Validation Failed"
+                    message: "enginePower must be greater than 0"
+                    timestamp: "2025-10-03T12:00:00Z"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        
+
+  /vehicles/{id}:
+    get:
+      tags:
+        - vehicles
+      summary: Получить транспортное средство по ID
+      description: Возвращает объект Vehicle с указанным идентификатором
+      operationId: getVehicleById
+      parameters:
+        - name: id
+          in: path
+          description: Уникальный идентификатор транспортного средства
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 123
+      responses:
+        '200':
+          description: Транспортное средство найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+              example:
+                id: 123
+                name: "Toyota Camry"
+                coordinates:
+                  x: 45.5
+                  y: 123.456
+                creationDate: "2025-10-03"
+                enginePower: 249.0
+                numberOfWheels: 4
+                distanceTravelled: 50000
+                fuelType: "DIESEL"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - vehicles
+      summary: Обновить транспортное средство
+      description: |
+        Обновляет все поля существующего транспортного средства.
+        
+        **Поля id и creationDate не могут быть изменены.**
+        
+        Применяются те же правила валидации, что и при создании.
+      operationId: updateVehicle
+      parameters:
+        - name: id
+          in: path
+          description: Уникальный идентификатор транспортного средства
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 123
+      requestBody:
+        description: Обновленные данные транспортного средства
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleUpdateRequest'
+            example:
+              name: "Toyota Camry Updated"
+              coordinates:
+                x: 46.0
+                y: 124.0
+              enginePower: 250.0
+              numberOfWheels: 4
+              distanceTravelled: 55000
+              fuelType: "DIESEL"
+      responses:
+        '200':
+          description: Транспортное средство успешно обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+              example:
+                id: 123
+                name: "Toyota Camry Updated"
+                coordinates:
+                  x: 46.0
+                  y: 124.0
+                creationDate: "2025-10-03"
+                enginePower: 250.0
+                numberOfWheels: 4
+                distanceTravelled: 55000
+                fuelType: "DIESEL"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Конфликт - невозможно обновить из-за конфликта данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Conflict"
+                message: "Cannot update: another vehicle with this name already exists"
+                timestamp: "2025-10-03T12:00:00Z"
+        '422':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      
+    
+    delete:
+      tags:
+        - vehicles
+      summary: Удалить транспортное средство
+      description: Удаляет транспортное средство с указанным идентификатором из коллекции
+      operationId: deleteVehicle
+      parameters:
+        - name: id
+          in: path
+          description: Уникальный идентификатор транспортного средства
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 123
+      responses:
+        '204':
+          description: Транспортное средство успешно удалено
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Конфликт - невозможно удалить из-за существующих зависимостей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Conflict"
+                message: "Cannot delete vehicle: it has active reservations"
+                timestamp: "2025-10-03T12:00:00Z"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        
+
+  /vehicles/search/name-contains:
+    get:
+      tags:
+        - search
+      summary: Поиск по подстроке в названии
+      description: |
+        Возвращает массив транспортных средств, название которых содержит указанную подстроку.
+        
+        Поиск регистронезависимый.
+      operationId: searchByNameContains
+      parameters:
+        - name: substring
+          in: query
+          description: Подстрока для поиска в названии
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          example: "Toyota"
+      responses:
+        '200':
+          description: Найденные транспортные средства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+              example:
+                - id: 1
+                  name: "Toyota Camry"
+                  coordinates:
+                    x: 45.5
+                    y: 123.456
+                  creationDate: "2025-01-15"
+                  enginePower: 249.0
+                  numberOfWheels: 4
+                  distanceTravelled: 50000
+                  fuelType: "DIESEL"
+                - id: 2
+                  name: "Toyota Corolla"
+                  coordinates:
+                    x: 50.0
+                    y: 130.0
+                  creationDate: "2025-02-20"
+                  enginePower: 132.0
+                  numberOfWheels: 4
+                  distanceTravelled: 30000
+                  fuelType: "DIESEL"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        
+
+  /vehicles/search/name-starts-with:
+    get:
+      tags:
+        - search
+      summary: Поиск по началу названия
+      description: |
+        Возвращает массив транспортных средств, название которых начинается с указанной подстроки.
+        
+        Поиск регистронезависимый.
+      operationId: searchByNameStartsWith
+      parameters:
+        - name: prefix
+          in: query
+          description: Префикс для поиска в начале названия
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          example: "Vol"
+      responses:
+        '200':
+          description: Найденные транспортные средства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+              example:
+                - id: 10
+                  name: "Volvo FH16"
+                  coordinates:
+                    x: 60.0
+                    y: 200.0
+                  creationDate: "2024-12-10"
+                  enginePower: 750.0
+                  numberOfWheels: 18
+                  distanceTravelled: 250000
+                  fuelType: "DIESEL"
+                - id: 11
+                  name: "Volvo XC90"
+                  coordinates:
+                    x: 55.0
+                    y: 180.0
+                  creationDate: "2025-03-05"
+                  enginePower: 400.0
+                  numberOfWheels: 4
+                  distanceTravelled: 15000
+                  fuelType: "DIESEL"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /vehicles/search/fuel-type-greater-than:
+    get:
+      tags:
+        - search
+      summary: Поиск по типу топлива больше заданного
+      description: |
+        Возвращает массив транспортных средств, значение fuelType которых больше заданного.
+        
+        Порядок типов топлива (от меньшего к большему):
+        1. KEROSENE
+        2. DIESEL
+        3. PLASMA
+        
+        Например, при указании `fuelType=KEROSENE` будут возвращены транспортные средства с типами DIESEL и PLASMA.
+      operationId: searchByFuelTypeGreaterThan
+      parameters:
+        - name: fuelType
+          in: query
+          description: Тип топлива для сравнения
+          required: true
+          schema:
+            $ref: '#/components/schemas/FuelType'
+          example: "KEROSENE"
+      responses:
+        '200':
+          description: Найденные транспортные средства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+              example:
+                - id: 1
+                  name: "Toyota Camry"
+                  coordinates:
+                    x: 45.5
+                    y: 123.456
+                  creationDate: "2025-01-15"
+                  enginePower: 249.0
+                  numberOfWheels: 4
+                  distanceTravelled: 50000
+                  fuelType: "DIESEL"
+                - id: 20
+                  name: "Tesla Cybertruck"
+                  coordinates:
+                    x: 30.0
+                    y: 90.0
+                  creationDate: "2025-05-01"
+                  enginePower: 800.0
+                  numberOfWheels: 4
+                  distanceTravelled: 5000
+                  fuelType: "PLASMA"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Vehicle:
+      type: object
+      description: Транспортное средство
+      required:
+        - id
+        - name
+        - coordinates
+        - creationDate
+        - enginePower
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор (генерируется автоматически)
+          minimum: 1
+          example: 123
+        name:
+          type: string
+          description: Название транспортного средства
+          minLength: 1
+          example: "Toyota Camry"
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        creationDate:
+          type: string
+          format: date
+          description: Дата создания записи (генерируется автоматически)
+          example: "2025-10-03"
+        enginePower:
+          type: number
+          format: float
+          description: Мощность двигателя
+          minimum: 0
+          exclusiveMinimum: true
+          example: 249.0
+        numberOfWheels:
+          type: integer
+          description: Количество колес (опционально)
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 4
+        distanceTravelled:
+          type: integer
+          description: Пройденное расстояние в километрах (опционально)
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 50000
+        fuelType:
+          allOf:
+            - $ref: '#/components/schemas/FuelType'
+          nullable: true
+          description: Тип топлива (опционально)
+
+    VehicleCreateRequest:
+      type: object
+      description: Данные для создания транспортного средства
+      required:
+        - name
+        - coordinates
+        - enginePower
+      properties:
+        name:
+          type: string
+          description: Название транспортного средства
+          minLength: 1
+          example: "Toyota Camry"
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        enginePower:
+          type: number
+          format: float
+          description: Мощность двигателя
+          minimum: 0
+          exclusiveMinimum: true
+          example: 249.0
+        numberOfWheels:
+          type: integer
+          description: Количество колес (опционально)
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 4
+        distanceTravelled:
+          type: integer
+          description: Пройденное расстояние в километрах (опционально)
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 50000
+        fuelType:
+          allOf:
+            - $ref: '#/components/schemas/FuelType'
+          nullable: true
+          description: Тип топлива (опционально)
+
+    VehicleUpdateRequest:
+      type: object
+      description: Данные для обновления транспортного средства
+      required:
+        - name
+        - coordinates
+        - enginePower
+      properties:
+        name:
+          type: string
+          description: Название транспортного средства
+          minLength: 1
+          example: "Toyota Camry Updated"
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        enginePower:
+          type: number
+          format: float
+          description: Мощность двигателя
+          minimum: 0
+          exclusiveMinimum: true
+          example: 250.0
+        numberOfWheels:
+          type: integer
+          description: Количество колес (опционально)
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 4
+        distanceTravelled:
+          type: integer
+          description: Пройденное расстояние в километрах (опционально)
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 55000
+        fuelType:
+          allOf:
+            - $ref: '#/components/schemas/FuelType'
+          nullable: true
+          description: Тип топлива (опционально)
+
+    Coordinates:
+      type: object
+      description: Географические координаты
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+          format: float
+          description: Координата X
+          maximum: 61
+          example: 45.5
+        y:
+          type: number
+          format: double
+          description: Координата Y
+          example: 123.456
+
+    FuelType:
+      type: string
+      description: |
+        Тип топлива транспортного средства.
+        
+        Порядок значений (от меньшего к большему):
+        * KEROSENE - Керосин
+        * DIESEL - Дизельное топливо
+        * PLASMA - Плазменное топливо
+      enum:
+        - KEROSENE
+        - DIESEL
+        - PLASMA
+      example: "DIESEL"
+
+    ErrorResponse:
+      type: object
+      description: Стандартный формат ответа об ошибке
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: Тип ошибки
+          example: "Bad Request"
+        message:
+          type: string
+          description: Подробное описание ошибки
+          example: "Invalid parameter: id must be greater than 0"
+        timestamp:
+          type: string
+          format: date-time
+          description: Время возникновения ошибки
+          example: "2025-10-03T12:00:00Z"
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос - неверные параметры или формат данных
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_parameter:
+              summary: Неверный параметр
+              value:
+                error: "Bad Request"
+                message: "Invalid parameter format: page must be a non-negative integer"
+                timestamp: "2025-10-03T12:00:00Z"
+            invalid_enum:
+              summary: Неверное значение enum
+              value:
+                error: "Bad Request"
+                message: "Invalid fuel type: GASOLINE. Allowed values are: KEROSENE, DIESEL, PLASMA"
+                timestamp: "2025-10-03T12:00:00Z"
+            missing_parameter:
+              summary: Отсутствует обязательный параметр
+              value:
+                error: "Bad Request"
+                message: "Required parameter 'substring' is missing"
+                timestamp: "2025-10-03T12:00:00Z"
+    
+    Unauthorized:
+      description: Не авторизован - требуется аутентификация
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Unauthorized"
+            message: "Authentication required. Please provide valid credentials"
+            timestamp: "2025-10-03T12:00:00Z"
+      headers:
+        WWW-Authenticate:
+          description: Метод аутентификации
+          schema:
+            type: string
+          example: Bearer realm="Vehicle Service"
+    
+    Forbidden:
+      description: Доступ запрещён - недостаточно прав для выполнения операции
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            insufficient_permissions:
+              summary: Недостаточно прав
+              value:
+                error: "Forbidden"
+                message: "You don't have permission to perform this action"
+                timestamp: "2025-10-03T12:00:00Z"
+            role_required:
+              summary: Требуется определённая роль
+              value:
+                error: "Forbidden"
+                message: "Admin role required to delete vehicles"
+                timestamp: "2025-10-03T12:00:00Z"
+    
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            vehicle_not_found:
+              summary: Транспортное средство не найдено
+              value:
+                error: "Not Found"
+                message: "Vehicle with id 123 not found"
+                timestamp: "2025-10-03T12:00:00Z"
+            endpoint_not_found:
+              summary: Endpoint не найден
+              value:
+                error: "Not Found"
+                message: "The requested endpoint does not exist"
+                timestamp: "2025-10-03T12:00:00Z"
+    
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            generic_error:
+              summary: Общая ошибка сервера
+              value:
+                error: "Internal Server Error"
+                message: "An unexpected error occurred while processing your request"
+                timestamp: "2025-10-03T12:00:00Z"
+            database_error:
+              summary: Ошибка базы данных
+              value:
+                error: "Internal Server Error"
+                message: "Database connection failed"
+                timestamp: "2025-10-03T12:00:00Z"
+            null_pointer:
+              summary: Ошибка обработки данных
+              value:
+                error: "Internal Server Error"
+                message: "Null pointer exception occurred"
+                timestamp: "2025-10-03T12:00:00Z"
+    
+    
+      headers:
+        Retry-After:
+          description: Время ожидания перед повторной попыткой (в секундах)
+          schema:
+            type: integer
+          example: 120

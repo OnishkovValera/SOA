@@ -1,0 +1,563 @@
+openapi: 3.0.3
+info:
+  title: Shop Service API
+  description: |
+    Дополнительный веб-сервис для работы с транспортными средствами через магазин.
+    
+    Сервис предоставляет специализированные операции, которые расширяют функциональность
+    основного Vehicle Management Service:
+    - Поиск транспортных средств по типу топлива
+    - Обнуление счетчика пробега (сброс показаний одометра)
+    
+    ## Интеграция
+    Данный сервис взаимодействует с Vehicle Management Service API для выполнения операций.
+    
+    ## Базовый путь
+    Все операции сервиса доступны по базовому пути `/shop`.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:313233/shop
+    description: Helios
+
+tags:
+  - name: search
+    description: Операции поиска транспортных средств
+  - name: maintenance
+    description: Операции обслуживания транспортных средств
+
+paths:
+  /search/by-type/{type}:
+    get:
+      tags:
+        - search
+      summary: Найти транспортные средства по типу топлива
+      description: |
+        Возвращает список всех транспортных средств, использующих указанный тип топлива.
+        
+        Эта операция выполняет запрос к Vehicle Management Service API
+        и фильтрует результаты по типу топлива.
+        
+        ## Доступные типы топлива:
+        - **KEROSENE** - Керосин (используется в авиации и некоторых специализированных транспортных средствах)
+        - **DIESEL** - Дизельное топливо (распространено в грузовиках, автобусах и некоторых легковых автомобилях)
+        - **PLASMA** - Плазменное топливо (футуристическое топливо для инновационных транспортных средств)
+        
+        ## Примеры использования:
+        - `/shop/search/by-type/DIESEL` - найти все дизельные транспортные средства
+        - `/shop/search/by-type/PLASMA` - найти транспортные средства на плазменном топливе
+      operationId: searchVehiclesByFuelType
+      parameters:
+        - name: type
+          in: path
+          description: Тип топлива для поиска
+          required: true
+          schema:
+            $ref: '#/components/schemas/FuelType'
+          examples:
+            diesel:
+              value: DIESEL
+              summary: Поиск дизельных транспортных средств
+            plasma:
+              value: PLASMA
+              summary: Поиск транспортных средств на плазме
+            kerosene:
+              value: KEROSENE
+              summary: Поиск транспортных средств на керосине
+      responses:
+        '200':
+          description: Успешный поиск. Возвращает список транспортных средств указанного типа
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fuelType:
+                    $ref: '#/components/schemas/FuelType'
+                  count:
+                    type: integer
+                    description: Количество найденных транспортных средств
+                    example: 15
+                  vehicles:
+                    type: array
+                    description: Массив найденных транспортных средств
+                    items:
+                      $ref: '#/components/schemas/Vehicle'
+              examples:
+                diesel_vehicles:
+                  summary: Найденные дизельные транспортные средства
+                  value:
+                    fuelType: "DIESEL"
+                    count: 2
+                    vehicles:
+                      - id: 1
+                        name: "Toyota Camry"
+                        coordinates:
+                          x: 45.5
+                          y: 123.456
+                        creationDate: "2025-01-15"
+                        enginePower: 249.0
+                        numberOfWheels: 4
+                        distanceTravelled: 50000
+                        fuelType: "DIESEL"
+                      - id: 10
+                        name: "Volvo FH16"
+                        coordinates:
+                          x: 60.0
+                          y: 200.0
+                        creationDate: "2024-12-10"
+                        enginePower: 750.0
+                        numberOfWheels: 18
+                        distanceTravelled: 250000
+                        fuelType: "DIESEL"
+                empty_result:
+                  summary: Транспортные средства не найдены
+                  value:
+                    fuelType: "KEROSENE"
+                    count: 0
+                    vehicles: []
+        '400':
+          description: Некорректный запрос - неверный тип топлива
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Bad Request"
+                message: "Invalid fuel type: GASOLINE. Allowed values are: KEROSENE, DIESEL, PLASMA"
+                timestamp: "2025-10-03T14:30:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '408':
+          description: Время ожидания запроса истекло
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Request Timeout"
+                message: "Request to Vehicle Management Service timed out after 30 seconds"
+                timestamp: "2025-10-03T14:30:00Z"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        
+  /fix-distance/{vehicle-id}:
+    post:
+      tags:
+        - maintenance
+      summary: Обнулить счетчик пробега транспортного средства
+      description: |
+        Выполняет операцию "скручивания" одометра - обнуляет счетчик пройденного расстояния
+        для транспортного средства с указанным идентификатором.
+        
+        ## Процесс работы:
+        1. Проверяет существование транспортного средства с указанным ID
+        2. Устанавливает значение поля `distanceTravelled` в 0
+        3. Сохраняет изменения через Vehicle Management Service API
+        4. Возвращает обновленное транспортное средство
+        
+        ## Важно:
+        - Операция необратима
+        - Применима только к существующим транспортным средствам
+        - Все остальные поля транспортного средства остаются без изменений
+        
+        ## Использование:
+        Эта операция может использоваться при:
+        - Продаже подержанного транспортного средства
+        - Обслуживании и ремонте
+        - Замене одометра
+        
+        **Внимание**: Данная операция предназначена только для учебных целей.
+        В реальных условиях манипуляции с показаниями одометра могут быть незаконными.
+      operationId: resetVehicleDistance
+      parameters:
+        - name: vehicle-id
+          in: path
+          description: Уникальный идентификатор транспортного средства
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          examples:
+            example1:
+              value: 123
+              summary: ID транспортного средства
+            example2:
+              value: 456
+              summary: Другой ID
+      responses:
+        '200':
+          description: Счетчик пробега успешно обнулен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Сообщение об успешном выполнении операции
+                    example: "Distance counter successfully reset to 0"
+                  vehicle:
+                    $ref: '#/components/schemas/Vehicle'
+                  previousDistance:
+                    type: integer
+                    description: Предыдущее значение пробега
+                    example: 50000
+              examples:
+                success:
+                  summary: Успешное обнуление пробега
+                  value:
+                    message: "Distance counter successfully reset to 0"
+                    vehicle:
+                      id: 123
+                      name: "Toyota Camry"
+                      coordinates:
+                        x: 45.5
+                        y: 123.456
+                      creationDate: "2025-01-15"
+                      enginePower: 249.0
+                      numberOfWheels: 4
+                      distanceTravelled: 0
+                      fuelType: "DIESEL"
+                    previousDistance: 50000
+        '400':
+          description: Некорректный запрос - неверный формат ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Bad Request"
+                message: "Invalid vehicle ID format: must be a positive integer"
+                timestamp: "2025-10-03T14:30:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Транспортное средство с указанным ID не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "Vehicle with id 999 not found"
+                timestamp: "2025-10-03T14:30:00Z"
+        '408':
+          description: Время ожидания запроса истекло
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Request Timeout"
+                message: "Request to Vehicle Management Service timed out"
+                timestamp: "2025-10-03T14:30:00Z"
+        '409':
+          description: Конфликт - операция не может быть выполнена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                already_zero:
+                  summary: Пробег уже равен нулю
+                  value:
+                    error: "Conflict"
+                    message: "Distance is already 0 for this vehicle"
+                    timestamp: "2025-10-03T14:30:00Z"
+                locked:
+                  summary: Транспортное средство заблокировано
+                  value:
+                    error: "Conflict"
+                    message: "Vehicle is currently locked by another operation"
+                    timestamp: "2025-10-03T14:30:00Z"
+        '422':
+          description: Невозможно обработать запрос - нарушены бизнес-правила
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Unprocessable Entity"
+                message: "Cannot reset distance for vehicle in maintenance status"
+                timestamp: "2025-10-03T14:30:00Z"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        
+components:
+  schemas:
+    Vehicle:
+      type: object
+      description: |
+        Транспортное средство (объект из Vehicle Management Service).
+        
+        Этот объект возвращается из основного сервиса управления транспортными средствами.
+      required:
+        - id
+        - name
+        - coordinates
+        - creationDate
+        - enginePower
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор транспортного средства
+          minimum: 1
+          example: 123
+        name:
+          type: string
+          description: Название транспортного средства
+          minLength: 1
+          example: "Toyota Camry"
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        creationDate:
+          type: string
+          format: date
+          description: Дата создания записи
+          example: "2025-10-03"
+        enginePower:
+          type: number
+          format: float
+          description: Мощность двигателя
+          minimum: 0
+          exclusiveMinimum: true
+          example: 249.0
+        numberOfWheels:
+          type: integer
+          description: Количество колес
+          nullable: true
+          minimum: 0
+          exclusiveMinimum: true
+          example: 4
+        distanceTravelled:
+          type: integer
+          description: Пройденное расстояние в километрах
+          nullable: true
+          minimum: 0
+          example: 50000
+        fuelType:
+          allOf:
+            - $ref: '#/components/schemas/FuelType'
+          nullable: true
+          description: Тип топлива
+
+    Coordinates:
+      type: object
+      description: Географические координаты транспортного средства
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+          format: float
+          description: Координата X (не более 61)
+          maximum: 61
+          example: 45.5
+        y:
+          type: number
+          format: double
+          description: Координата Y
+          example: 123.456
+
+    FuelType:
+      type: string
+      description: |
+        Тип топлива транспортного средства.
+        
+        ## Доступные значения (в порядке возрастания):
+        
+        1. **KEROSENE** (Керосин)
+           - Используется в авиации
+           - Применяется в некоторых специализированных наземных транспортных средствах
+           - Высокая энергоемкость
+        
+        2. **DIESEL** (Дизельное топливо)
+           - Самый распространенный тип для грузовых автомобилей
+           - Используется в автобусах и некоторых легковых автомобилях
+           - Высокий крутящий момент и экономичность
+        
+        3. **PLASMA** (Плазменное топливо)
+           - Футуристический тип топлива
+           - Используется в инновационных и экспериментальных транспортных средствах
+           - Экологически чистое и высокоэффективное
+      enum:
+        - KEROSENE
+        - DIESEL
+        - PLASMA
+      example: "DIESEL"
+
+    ErrorResponse:
+      type: object
+      description: Стандартный формат ответа об ошибке
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: Краткое описание типа ошибки
+          example: "Bad Request"
+        message:
+          type: string
+          description: Подробное описание ошибки
+          example: "Invalid fuel type provided"
+        timestamp:
+          type: string
+          format: date-time
+          description: Временная метка возникновения ошибки
+          example: "2025-10-03T14:30:00Z"
+        details:
+          type: object
+          description: Дополнительные детали ошибки (опционально)
+          nullable: true
+          additionalProperties: true
+          example:
+            field: "fuelType"
+            rejectedValue: "GASOLINE"
+            allowedValues: ["KEROSENE", "DIESEL", "PLASMA"]
+
+  responses:
+    Unauthorized:
+      description: Ошибка авторизации - требуется аутентификация
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Unauthorized"
+            message: "Authentication is required to access this resource"
+            timestamp: "2025-10-03T14:30:00Z"
+
+    Forbidden:
+      description: Доступ запрещён - недостаточно прав
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Forbidden"
+            message: "You do not have permission to access this resource"
+            timestamp: "2025-10-03T14:30:00Z"
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            generic_error:
+              summary: Общая внутренняя ошибка
+              value:
+                error: "Internal Server Error"
+                message: "An unexpected error occurred while processing your request"
+                timestamp: "2025-10-03T14:30:00Z"
+            database_error:
+              summary: Ошибка базы данных
+              value:
+                error: "Internal Server Error"
+                message: "Database connection failed"
+                timestamp: "2025-10-03T14:30:00Z"
+                details:
+                  cause: "Connection timeout"
+
+  parameters:
+    VehicleIdParam:
+      name: vehicle-id
+      in: path
+      description: Уникальный идентификатор транспортного средства
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      example: 123
+
+    FuelTypeParam:
+      name: type
+      in: path
+      description: Тип топлива для фильтрации
+      required: true
+      schema:
+        $ref: '#/components/schemas/FuelType'
+      example: DIESEL
+
+  examples:
+    DieselVehiclesResponse:
+      summary: Список дизельных транспортных средств
+      value:
+        fuelType: "DIESEL"
+        count: 3
+        vehicles:
+          - id: 1
+            name: "Toyota Camry"
+            coordinates:
+              x: 45.5
+              y: 123.456
+            creationDate: "2025-01-15"
+            enginePower: 249.0
+            numberOfWheels: 4
+            distanceTravelled: 50000
+            fuelType: "DIESEL"
+          - id: 10
+            name: "Volvo FH16"
+            coordinates:
+              x: 60.0
+              y: 200.0
+            creationDate: "2024-12-10"
+            enginePower: 750.0
+            numberOfWheels: 18
+            distanceTravelled: 250000
+            fuelType: "DIESEL"
+          - id: 15
+            name: "Mercedes-Benz Actros"
+            coordinates:
+              x: 55.0
+              y: 175.0
+            creationDate: "2025-02-20"
+            enginePower: 625.0
+            numberOfWheels: 18
+            distanceTravelled: 180000
+            fuelType: "DIESEL"
+
+    PlasmaVehiclesResponse:
+      summary: Список транспортных средств на плазменном топливе
+      value:
+        fuelType: "PLASMA"
+        count: 1
+        vehicles:
+          - id: 20
+            name: "Tesla Cybertruck Plasma Edition"
+            coordinates:
+              x: 30.0
+              y: 90.0
+            creationDate: "2025-05-01"
+            enginePower: 1000.0
+            numberOfWheels: 4
+            distanceTravelled: 5000
+            fuelType: "PLASMA"
+
+    DistanceResetSuccess:
+      summary: Успешное обнуление пробега
+      value:
+        message: "Distance counter successfully reset to 0"
+        vehicle:
+          id: 123
+          name: "Toyota Camry"
+          coordinates:
+            x: 45.5
+            y: 123.456
+          creationDate: "2025-01-15"
+          enginePower: 249.0
+          numberOfWheels: 4
+          distanceTravelled: 0
+          fuelType: "DIESEL"
+        previousDistance: 50000
