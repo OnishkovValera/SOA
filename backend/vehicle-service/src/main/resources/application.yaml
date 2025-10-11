@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: vehicle-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: admin
+    url: jdbc:postgresql://localhost:5432/Cian_bank?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    hikari:
+      connection-init-sql: SET NAMES 'UTF8'
+  jpa:
+    properties:
+      hibernate:
+        connection:
+          charset: UTF8
+          characterEncoding: UTF-8
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.yaml
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+  port: 8080
