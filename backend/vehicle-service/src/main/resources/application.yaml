@@ -5,7 +5,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: admin
-    url: jdbc:postgresql://localhost:5432/Cian_bank?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/vehicle-db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     hikari:
       connection-init-sql: SET NAMES 'UTF8'
   jpa:
