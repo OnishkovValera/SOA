@@ -14,11 +14,16 @@ spring:
         connection:
           charset: UTF8
           characterEncoding: UTF-8
+        format_sql: true
+    show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/changelog-master.yaml
-
 server:
   servlet:
     encoding:
       charset: UTF-8
   port: 8080
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: trace
