@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Max
 
 @Embeddable
 class Coordinates(
-    @Max(61)
-    private var x: Float,
-    private var y: Double?
+    @field:Max(61)
+    var x: Float,
+    var y: Double?
 )

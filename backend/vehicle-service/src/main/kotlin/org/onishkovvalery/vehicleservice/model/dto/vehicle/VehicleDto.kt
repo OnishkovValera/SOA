@@ -1,0 +1,23 @@
+package org.onishkovvalery.vehicleservice.model.dto.vehicle
+
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Positive
+import org.onishkovvalery.vehicleservice.model.entity.Coordinates
+import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import java.time.LocalDate
+
+data class VehicleDto (
+    val id: Long? = null,
+    @field:NotBlank
+    val name: String,
+    val model: String,
+    val coordinate: Coordinates,
+    val creationDate: LocalDate = LocalDate.now(),
+    @field:Positive
+    val enginePower: Float,
+    @field:Positive
+    val numberOfWheels: Int,
+    @field:Positive
+    val distanceTravelled: Int,
+    val fuelType: FuelType
+)

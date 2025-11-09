@@ -8,29 +8,30 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
+import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
 import java.time.LocalDate
 
 @Entity
 class Vehicle(
     @field: [Id GeneratedValue(strategy = GenerationType.IDENTITY)]
-    private val id: Long? = null,
+    val id: Long? = null,
 
-    @NotBlank
-    private var name: String,
+    @field:NotBlank
+    var name: String,
 
-    private var coordinate: Coordinates,
+    var coordinate: Coordinates,
 
-    private var creationDate: LocalDate = LocalDate.now(),
+    val creationDate: LocalDate = LocalDate.now(),
 
-    @Positive
-    private var enginePower: Float,
+    @field:Positive
+    var enginePower: Float,
 
-    @Positive
-    private var numberOfWheels: Int,
+    @field:Positive
+    var numberOfWheels: Int,
 
-    @Positive
-    private var distanceTravelled: Int,
+    @field:Positive
+    var distanceTravelled: Int,
 
     @Enumerated(EnumType.STRING)
-    private var fuelType: FuelType
+    var fuelType: FuelType
 )

@@ -1,29 +1,35 @@
 package org.onishkovvalery.vehicleservice.controller
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.ArgumentMatchers.nullable
 import org.mockito.Mockito
-import org.mockito.junit.jupiter.MockitoExtension
-import org.onishkovvalery.vehicleservice.model.dto.VehicleDto
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.notNull
+import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleDto
+import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleFilterDto
 import org.onishkovvalery.vehicleservice.model.entity.Coordinates
-import org.onishkovvalery.vehicleservice.model.entity.FuelType
+import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
 import org.onishkovvalery.vehicleservice.service.VehicleService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.*
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDate
+import org.springframework.util.Assert
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 
 @WebMvcTest(VehicleController::class)
-@ExtendWith(MockitoExtension::class)
 @AutoConfigureMockMvc
 class VehicleControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
@@ -33,116 +39,60 @@ class VehicleControllerTest @Autowired constructor(
     @MockitoBean
     private lateinit var vehicleService: VehicleService
 
-    @Test
-    fun `Check vehicle controller get method with valid request body`() {
+    @BeforeEach
+    fun setUp() {
+        Mockito.reset(vehicleService)
+    }
+
+    @ParameterizedTest
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#validRequest")
+    fun `Check vehicle controller get method validation with valid request`(
+        request: Pair<VehicleFilterDto?, Pageable?>,
+        response: Page<VehicleDto?>
+    ) {
         //given
         Mockito.`when`(
             vehicleService.getVehicles(
-                VehicleDto(
-                    name = "ferrari",
-                    coordinate = Coordinates(
-                        x = 1F,
-                        y = 2.0
-                    ),
-                    enginePower = 10.1F,
-                    numberOfWheels = 4,
-                    distanceTravelled = 5,
-                    fuelType = FuelType.DIESEL
-                ),
-                PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"))
+                anyOrNull(), any()
             )
-        ).thenReturn(
-            PageImpl(
-                listOf(
-                    VehicleDto(
-                        1,
-                        "ferrari",
-                        Coordinates(
-                            1F,
-                            2.0
-                        ),
-                        LocalDate.now(),
-                        10.1F,
-                        4,
-                        5,
-                        FuelType.DIESEL
-                    )
-                )
-            )
+        ).thenReturn(response)
+        val params = LinkedMultiValueMap<String, String>()
+        val map: Map<String, Any> = objectMapper.convertValue(
+            request.first,
+            object : TypeReference<Map<String, Any>>() {}
         )
+        map.forEach { (key, value) -> value?.let { params.add(key, value.toString()) } }
+        request.second?.let { pageable ->
+            params.add("page", pageable.pageNumber.toString())
+            params.add("size", pageable.pageSize.toString())
+            if (pageable.sort.isSorted) {
+                params.add("sort", pageable.sort.first().property + "," + pageable.sort.first().direction)
+            }
+        }
 
-        val requestMap = mapOf(
-            "name" to "ferrari",
-            "coordinate" to mapOf(
-                "x" to 1,
-                "y" to 2
-            ),
-            "enginePower" to "10.1",
-            "numberOfWheels" to 4,
-            "distanceTravelled" to 5,
-            "fuelType" to "DIESEL"
-        )
         //when
-        val result = mockMvc.perform(
-            post("/api/v1/vehicles").content(
-                objectMapper.writeValueAsString(requestMap)
-            )
-        )
+        val result = mockMvc.perform(get("/api/v1/vehicles").params(params))
+
         //then
-        println(result.andReturn().response.contentAsString)
+        result.andExpect { status().isOk }
+            .andExpect { jsonPath("$.size").value(response.size) }
+            .andExpect { Assert.notNull(it.response, "Response must not be null") }
     }
 
-    @Test
-    fun `getVehicle method test @ModelAttribute is working`() {
+    @ParameterizedTest
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#invalidRequest")
+    fun `Check vehicle controller get method validation with not valid request`(
+        request: MultiValueMap<String, String>,
+        expectedStatus: Int,
+    ) {
         //given
-
-        val vehicle = VehicleDto(
-            name = "ferrari",
-            coordinate = Coordinates(
-                x = 1F,
-                y = 2.0
-            ),
-            enginePower = 10.1F,
-            numberOfWheels = 4,
-            distanceTravelled = 5,
-            fuelType = FuelType.DIESEL
-        )
-
-        Mockito.`when`(vehicleService.getVehicles(vehicle, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"))))
-            .thenReturn(
-                PageImpl(
-                    listOf(
-                        VehicleDto(
-                            id = 1L,
-                            name = "ferrari",
-                            coordinate = Coordinates(
-                                x = 1F,
-                                y = 2.0
-                            ),
-                            enginePower = 10.1F,
-                            numberOfWheels = 4,
-                            distanceTravelled = 5,
-                            fuelType = FuelType.DIESEL
-                        )
-                    )
-                )
-            )
-
+        Mockito.`when`(vehicleService.getVehicles(anyOrNull(), any()))
+            .thenReturn(Mockito.mock(Page::class.java) as Page<VehicleDto?>)
         //when
-        val result = mockMvc.perform(
-            get("/api/v1/vehicles")
-                .param("name", "ferrari")
-                .param("coordinate.x", "1")
-                .param("coordinate.y", "2")
-                .param("enginePower", "10.1")
-                .param("numberOfWheels", "4")
-                .param("distanceTravelled", "5")
-                .param("fuelType", "DIESEL")
-        )
-
+        val result = mockMvc.perform(get("/api/v1/vehicles").params(request))
         //then
-        result.andExpect(status().isOk)
+        result.andExpect { it.response.status == expectedStatus }
             .andExpect { println(it.response.contentAsString) }
-    }
 
+    }
 }

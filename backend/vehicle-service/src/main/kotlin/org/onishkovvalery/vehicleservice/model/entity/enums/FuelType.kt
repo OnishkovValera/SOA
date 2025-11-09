@@ -1,4 +1,4 @@
-package org.onishkovvalery.vehicleservice.model.entity
+package org.onishkovvalery.vehicleservice.model.entity.enums
 
 enum class FuelType {
     KEROSENE,
