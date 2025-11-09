@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    deserialization:
+      fail-on-missing-creator-properties: true
   application:
     name: vehicle-service
   datasource:

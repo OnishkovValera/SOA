@@ -1,6 +1,5 @@
 package org.onishkovvalery.vehicleservice.utils
 
-import jakarta.persistence.criteria.Predicate
 import org.springframework.data.jpa.domain.Specification
 
 class SpecificationBuilder<T> {

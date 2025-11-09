@@ -1,15 +1,15 @@
 package org.onishkovvalery.vehicleservice.model.dto.vehicle
 
-import jakarta.validation.constraints.NotBlank
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import org.onishkovvalery.vehicleservice.model.dto.coordinates.CoordinateUpdateDto
-import org.onishkovvalery.vehicleservice.model.entity.Coordinates
 import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
-import java.time.LocalDate
 
 data class VehicleUpdateDto(
-    @field:NotBlank
+    @field:Pattern(regexp = ".*\\S.*")
     var name: String? = null,
+    @field:Valid
     var coordinate: CoordinateUpdateDto? = null,
     @field:Positive
     var enginePower: Float? = null,

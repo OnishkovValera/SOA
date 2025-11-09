@@ -18,7 +18,6 @@ class VehicleService(
     private val vehicleRepository: VehicleRepository,
     private val vehicleMapper: VehicleMapper,
 ) {
-
     fun create(vehicle: VehicleDto): VehicleDto {
         val createdVehicle = vehicleRepository.save(vehicleMapper.dtoToVehicle(vehicle))
         return vehicleMapper.vehicleToDto(createdVehicle)
@@ -39,11 +38,12 @@ class VehicleService(
     }
 
     fun deleteVehicle(id: Long) {
-        TODO("Not yet implemented")
+        vehicleRepository.findById(id).orElseThrow()
+        vehicleRepository.deleteById(id)
     }
 
     fun getVehicleById(id: Long): VehicleDto {
-        TODO("Not yet implemented")
+        return vehicleMapper.vehicleToDto(vehicleRepository.findById(id).orElseThrow())
     }
 
     private fun createSpecification(vehicle: VehicleFilterDto): Specification<Vehicle> {

@@ -10,27 +10,21 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-
 @RestController
 @RequestMapping("/api/v1/vehicles")
 class VehicleController(private val vehicleService: VehicleService) {
 
     @GetMapping
     @Operation(summary = "Get vehicles", method = "GET", tags = ["Vehicle API"])
-    fun get(@ModelAttribute vehicleFilter: VehicleFilterDto, page: Pageable) =
-        ResponseEntity.ok(vehicleService.getVehicles(vehicleFilter, page))
+    fun get(@ModelAttribute vehicleFilter: VehicleFilterDto, page: Pageable) = ResponseEntity.ok(vehicleService.getVehicles(vehicleFilter, page))
 
     @GetMapping(params = ["!name", "!coordinatesX", "!coordinatesY", "!enginePower", "!numberOfWheels", "!distanceTravelled", "!fuelType", "!model"])
     @Operation(summary = "Get vehicles", method = "GET", tags = ["Vehicle API"])
-    fun get(page: Pageable) =
-        ResponseEntity.ok(vehicleService.getVehicles(null, page))
+    fun get(page: Pageable) = ResponseEntity.ok(vehicleService.getVehicles(null, page))
 
     @PostMapping
     @Operation(summary = "Create vehicle", method = "POST", tags = ["Vehicle API"])
-    fun create(@Valid @RequestBody vehicle: VehicleDto): ResponseEntity<VehicleDto> {
-        val createdVehicle = vehicleService.create(vehicle)
-        return ResponseEntity.ok(createdVehicle)
-    }
+    fun create(@Valid @RequestBody vehicle: VehicleDto) = ResponseEntity.ok(vehicleService.create(vehicle))
 
     @PutMapping("/{id}")
     @Operation(summary = "Update vehicle", method = "PUT", tags = ["Vehicle API"])
@@ -47,7 +41,5 @@ class VehicleController(private val vehicleService: VehicleService) {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get vehicle by id", method = "GET", tags = ["Vehicle API"])
-    fun find(@PathVariable id: Long): ResponseEntity<VehicleDto> {
-        return ResponseEntity.ok(vehicleService.getVehicleById(id))
-    }
+    fun find(@PathVariable id: Long) = ResponseEntity.ok(vehicleService.getVehicleById(id))
 }
