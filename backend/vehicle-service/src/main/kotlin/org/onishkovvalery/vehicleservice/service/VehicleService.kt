@@ -18,23 +18,21 @@ class VehicleService(
     private val vehicleRepository: VehicleRepository,
     private val vehicleMapper: VehicleMapper,
 ) {
+    fun getVehicles(vehicle: VehicleFilterDto?, page: Pageable): Page<VehicleDto?> {
+        if (vehicle == null) return vehicleRepository.findAll(page).map { vehicleMapper.vehicleToDto(it) }
+        return vehicleRepository.findAll(createSpecification(vehicle), page).map { vehicleMapper.vehicleToDto(it) }
+    }
+
     fun create(vehicle: VehicleDto): VehicleDto {
         val createdVehicle = vehicleRepository.save(vehicleMapper.dtoToVehicle(vehicle))
         return vehicleMapper.vehicleToDto(createdVehicle)
     }
 
-    fun getVehicles(vehicle: VehicleFilterDto?, page: Pageable): Page<VehicleDto?> {
-        if (vehicle == null) return vehicleRepository.findAll(page).map { vehicleMapper.vehicleToDto(it) }
-        val specification = createSpecification(vehicle)
-        return vehicleRepository.findAll(specification, page).map { vehicleMapper.vehicleToDto(it) }
-    }
-
     fun updateVehicle(id: Long, vehicleUpdateDto: VehicleUpdateDto): VehicleDto {
-        val oldVehicle = vehicleRepository.findById(id).orElseThrow()
-        this.overrideVehicle(oldVehicle, vehicleUpdateDto)
-        val newVehicle = vehicleRepository.save(oldVehicle)
+        val vehicle = vehicleRepository.findById(id).orElseThrow()
+        vehicle.update(vehicleUpdateDto)
+        val newVehicle = vehicleRepository.save(vehicle)
         return vehicleMapper.vehicleToDto(newVehicle)
-
     }
 
     fun deleteVehicle(id: Long) {
@@ -49,9 +47,9 @@ class VehicleService(
     private fun createSpecification(vehicle: VehicleFilterDto): Specification<Vehicle> {
         return SpecificationBuilder<Vehicle>()
             .like(vehicle.name, "name")
+            .like(vehicle.model, "model")
             .eq(vehicle.coordinatesX, "x")
             .eq(vehicle.coordinatesY, "y")
-            .like(vehicle.model, "model")
             .eq(vehicle.fuelType, "fuelType")
             .eq(vehicle.distanceTravelled, "distanceTravelled")
             .eq(vehicle.numberOfWheels, "numberOfWheels")
@@ -59,14 +57,14 @@ class VehicleService(
             .build()
     }
 
-    private fun overrideVehicle(vehicle: Vehicle, fieldsOnUpdate: VehicleUpdateDto) {
-        fieldsOnUpdate.name?.let { vehicle.name = it }
-        fieldsOnUpdate.enginePower?.let { vehicle.enginePower = it }
-        fieldsOnUpdate.numberOfWheels?.let { vehicle.numberOfWheels = it }
-        fieldsOnUpdate.distanceTravelled?.let { vehicle.distanceTravelled = it }
-        fieldsOnUpdate.fuelType?.let { vehicle.fuelType = it }
-        fieldsOnUpdate.coordinate?.x?.let { vehicle.coordinate.x = it }
-        fieldsOnUpdate.coordinate?.y?.let { vehicle.coordinate.y = it }
+    private fun Vehicle.update(fieldsOnUpdate: VehicleUpdateDto) {
+        fieldsOnUpdate.name?.let { name = it }
+        fieldsOnUpdate.enginePower?.let { enginePower = it }
+        fieldsOnUpdate.numberOfWheels?.let { numberOfWheels = it }
+        fieldsOnUpdate.distanceTravelled?.let { distanceTravelled = it }
+        fieldsOnUpdate.fuelType?.let { fuelType = it }
+        fieldsOnUpdate.coordinate?.x?.let { coordinate.x = it }
+        fieldsOnUpdate.coordinate?.y?.let { coordinate.y = it }
     }
 
 }

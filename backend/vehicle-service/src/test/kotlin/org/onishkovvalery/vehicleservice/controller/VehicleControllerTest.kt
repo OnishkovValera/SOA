@@ -40,7 +40,7 @@ class VehicleControllerTest @Autowired constructor(
     }
 
     @ParameterizedTest
-    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#validRequest")
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.ControllerTestDataProviderKt#validRequest")
     fun `Check vehicle controller get method validation with valid request`(
         request: Pair<VehicleFilterDto?, Pageable?>,
         response: Page<VehicleDto?>
@@ -75,7 +75,7 @@ class VehicleControllerTest @Autowired constructor(
     }
 
     @ParameterizedTest
-    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#invalidRequest")
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.ControllerTestDataProviderKt#invalidRequest")
     fun `Check vehicle controller get method validation with invalid request`(
         request: MultiValueMap<String, String>,
         expectedStatus: Int,
@@ -90,7 +90,7 @@ class VehicleControllerTest @Autowired constructor(
     }
 
     @ParameterizedTest
-    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#invalidCreateRequestData")
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.ControllerTestDataProviderKt#invalidCreateRequestData")
     fun `Check invalid request body in vehicle controller post method`(body: Any?) {
         //given
         Mockito.`when`(vehicleService.create(Mockito.mock(VehicleDto::class.java)))
@@ -109,7 +109,7 @@ class VehicleControllerTest @Autowired constructor(
     }
 
     @ParameterizedTest
-    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#validCreateRequestData")
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.ControllerTestDataProviderKt#validCreateRequestData")
     fun `Check valid request body in vehicle controller post method`(body: Any?) {
         //given
         Mockito.`when`(vehicleService.create(Mockito.mock(VehicleDto::class.java)))
@@ -128,7 +128,7 @@ class VehicleControllerTest @Autowired constructor(
     }
 
     @ParameterizedTest
-    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#validUpdateRequestData")
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.ControllerTestDataProviderKt#validUpdateRequestData")
     fun `Check valid request body in vehicle controller put method`(body: Any?) {
         //given
         Mockito.`when`(
@@ -150,7 +150,7 @@ class VehicleControllerTest @Autowired constructor(
     }
 
     @ParameterizedTest
-    @MethodSource("org.onishkovvalery.vehicleservice.testData.TestDataProviderKt#invalidUpdateRequestData")
+    @MethodSource("org.onishkovvalery.vehicleservice.testData.ControllerTestDataProviderKt#invalidUpdateRequestData")
     fun `Check invalid request body in vehicle controller put method`(body: Any?) {
         //given
         Mockito.`when`(

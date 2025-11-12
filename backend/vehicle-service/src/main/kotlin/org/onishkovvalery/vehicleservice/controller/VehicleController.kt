@@ -31,7 +31,6 @@ class VehicleController(private val vehicleService: VehicleService) {
     fun update(@PathVariable id: Long, @Valid @RequestBody vehicle: VehicleUpdateDto) =
         ResponseEntity.ok(vehicleService.updateVehicle(id, vehicle))
 
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete vehicle", method = "DELETE", tags = ["Vehicle API"])
     fun delete(@PathVariable id: Long): ResponseEntity<Void> {
