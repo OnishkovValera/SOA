@@ -14,7 +14,7 @@ import java.time.LocalDate
 fun validRequest(): List<Arguments> = listOf(
     Arguments.of(
         Pair(
-            VehicleFilterDto(name = "audi", model = "Q7"),
+            VehicleFilterDto(name = "audi"),
             PageRequest.of(0, 1)
         ),
         PageImpl(
@@ -22,7 +22,6 @@ fun validRequest(): List<Arguments> = listOf(
                 VehicleDto(
                     1,
                     "audi",
-                    "Q7",
                     Coordinates(
                         1F,
                         2.0
@@ -46,7 +45,6 @@ fun validRequest(): List<Arguments> = listOf(
                 VehicleDto(
                     1,
                     "audi",
-                    "Q7",
                     Coordinates(
                         1F,
                         2.0
@@ -70,7 +68,6 @@ fun validRequest(): List<Arguments> = listOf(
                 VehicleDto(
                     1,
                     "audi",
-                    "Q7",
                     Coordinates(
                         1F,
                         2.0
@@ -106,7 +103,6 @@ fun invalidRequest(): List<Arguments> = listOf(
 fun validCreateRequestData(): List<Arguments> = listOf(
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -118,7 +114,6 @@ fun validCreateRequestData(): List<Arguments> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 61F
             val y = 2.0
@@ -133,7 +128,6 @@ fun validCreateRequestData(): List<Arguments> = listOf(
 fun invalidCreateRequestData(): List<Any?> = listOf(
     Arguments.of(object {
         val name = ""
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -145,7 +139,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     }),
     Arguments.of(object {
         val name = "   "
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -157,7 +150,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 62F
             val y = 2.0
@@ -171,7 +163,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
 
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = null
             val y = 2.0
@@ -183,7 +174,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -195,7 +185,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -207,7 +196,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -219,7 +207,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -232,7 +219,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
     Arguments.of(null),
     Arguments.of(object {
         val name = null
-        val model = null
         val coordinate = object {
             val x = null
             val y = null
@@ -247,7 +233,6 @@ fun invalidCreateRequestData(): List<Any?> = listOf(
 fun validUpdateRequestData(): List<Arguments> = listOf(
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = 1F
             val y = 2.0
@@ -258,7 +243,6 @@ fun validUpdateRequestData(): List<Arguments> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = null
         val enginePower = null
         val numberOfWheels = null
@@ -269,7 +253,6 @@ fun validUpdateRequestData(): List<Arguments> = listOf(
 fun invalidUpdateRequestData(): List<Arguments> = listOf(
     Arguments.of(object {
         val name = ""
-        val model = "Q7"
         val coordinate = object {
             val x = 62F
             val y = 2.0
@@ -280,7 +263,6 @@ fun invalidUpdateRequestData(): List<Arguments> = listOf(
     }),
     Arguments.of(object {
         val name = "audi"
-        val model = "Q7"
         val coordinate = object {
             val x = null
             val y = 2.0

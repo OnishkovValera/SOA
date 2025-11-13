@@ -47,7 +47,6 @@ class VehicleService(
     private fun createSpecification(vehicle: VehicleFilterDto): Specification<Vehicle> {
         return SpecificationBuilder<Vehicle>()
             .like(vehicle.name, "name")
-            .like(vehicle.model, "model")
             .eq(vehicle.coordinatesX, "x")
             .eq(vehicle.coordinatesY, "y")
             .eq(vehicle.fuelType, "fuelType")
