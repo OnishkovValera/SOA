@@ -32,6 +32,6 @@ class Vehicle(
     @field:Positive
     var distanceTravelled: Int,
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     var fuelType: FuelType
 )

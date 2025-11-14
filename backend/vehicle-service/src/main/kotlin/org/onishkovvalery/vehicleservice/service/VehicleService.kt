@@ -40,21 +40,17 @@ class VehicleService(
         vehicleRepository.deleteById(id)
     }
 
-    fun getVehicleById(id: Long): VehicleDto {
-        return vehicleMapper.vehicleToDto(vehicleRepository.findById(id).orElseThrow())
-    }
+    fun getVehicleById(id: Long) = vehicleMapper.vehicleToDto(vehicleRepository.findById(id).orElseThrow())
 
-    private fun createSpecification(vehicle: VehicleFilterDto): Specification<Vehicle> {
-        return SpecificationBuilder<Vehicle>()
-            .like(vehicle.name, "name")
-            .eq(vehicle.coordinatesX, "x")
-            .eq(vehicle.coordinatesY, "y")
-            .eq(vehicle.fuelType, "fuelType")
-            .eq(vehicle.distanceTravelled, "distanceTravelled")
-            .eq(vehicle.numberOfWheels, "numberOfWheels")
-            .eq(vehicle.enginePower, "enginePower")
-            .build()
-    }
+    private fun createSpecification(vehicle: VehicleFilterDto) = SpecificationBuilder<Vehicle>()
+        .like(vehicle.name, "name")
+        .eq(vehicle.coordinatesX, "x")
+        .eq(vehicle.coordinatesY, "y")
+        .eq(vehicle.fuelType, "fuelType")
+        .eq(vehicle.distanceTravelled, "distanceTravelled")
+        .eq(vehicle.numberOfWheels, "numberOfWheels")
+        .eq(vehicle.enginePower, "enginePower")
+        .build()
 
     private fun Vehicle.update(fieldsOnUpdate: VehicleUpdateDto) {
         fieldsOnUpdate.name?.let { name = it }

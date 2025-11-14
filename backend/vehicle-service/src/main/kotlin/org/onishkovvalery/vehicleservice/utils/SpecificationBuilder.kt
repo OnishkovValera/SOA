@@ -21,5 +21,14 @@ class SpecificationBuilder<T> {
         return this
     }
 
+    fun startsWith(field: String?, name: String): SpecificationBuilder<T> {
+        if (field != null) {
+            specifications += Specification<T> { root, _, cb ->
+                cb.like(root.get(name), "$field%")
+            }
+        }
+        return this
+    }
+
     fun build(): Specification<T> = Specification.allOf(*specifications.toTypedArray())
 }

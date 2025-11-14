@@ -3,5 +3,7 @@
   <component name="DiffGenerationConfig">
     <option name="snapshotDb" value="false" />
     <option name="snapshotModelValue" value="backend.vehicle-service.main:backend.vehicle-service.main" />
+    <option name="sourceModelValue" value="backend.vehicle-service.main:backend.vehicle-service.main" />
+    <option name="targetDbValue" value="9cfc8767-dfbf-4f63-8324-7f2c463e389d__vehicleDB_public" />
   </component>
 </project>
