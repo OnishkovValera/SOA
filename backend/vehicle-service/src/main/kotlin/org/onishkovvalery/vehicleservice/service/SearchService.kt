@@ -9,15 +9,24 @@ import org.springframework.stereotype.Service
 
 @Service
 class SearchService(
-    private val vehicleService: VehicleService,
     private val vehicleMapper: VehicleMapper,
     private val vehicleRepository: VehicleRepository,
 ) {
-    fun getByNameContains(name: String) = vehicleRepository.findAll(SpecificationBuilder<Vehicle>().like(name, "name").build())
-
-    fun getByNameStartsWith(name: String) = vehicleRepository.findAll(SpecificationBuilder<Vehicle>().startsWith(name, "name").build())
-
-    fun getByFuelTypeGreaterThan(fuelType: FuelType){
+    fun getByNameContains(name: String) = vehicleRepository.findAll(
         SpecificationBuilder<Vehicle>()
-    }
+            .like(name, "name")
+            .build())
+        .map { vehicle -> vehicleMapper.vehicleToDto(vehicle) }
+
+    fun getByNameStartsWith(name: String) = vehicleRepository.findAll(
+        SpecificationBuilder<Vehicle>()
+            .startsWith(name, "name")
+            .build())
+        .map { vehicle -> vehicleMapper.vehicleToDto(vehicle) }
+
+    fun getByFuelTypeGreaterThan(fuelType: FuelType) = vehicleRepository.findAll(
+        SpecificationBuilder<Vehicle>()
+            .fuelTypeGreaterThan(fuelType)
+            .build())
+        .map { vehicle -> vehicleMapper.vehicleToDto(vehicle) }
 }

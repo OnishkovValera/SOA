@@ -1,5 +1,6 @@
 package org.onishkovvalery.vehicleservice.utils
 
+import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
 import org.springframework.data.jpa.domain.Specification
 
 class SpecificationBuilder<T> {
@@ -25,6 +26,15 @@ class SpecificationBuilder<T> {
         if (field != null) {
             specifications += Specification<T> { root, _, cb ->
                 cb.like(root.get(name), "$field%")
+            }
+        }
+        return this
+    }
+
+    fun fuelTypeGreaterThan(field: FuelType?): SpecificationBuilder<T> {
+        if (field != null) {
+            specifications += Specification<T> { root, _, cb ->
+                cb.greaterThan(root.get("fuelType"), field)
             }
         }
         return this

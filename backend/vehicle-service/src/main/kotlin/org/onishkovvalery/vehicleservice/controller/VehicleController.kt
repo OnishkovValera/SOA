@@ -18,7 +18,7 @@ class VehicleController(private val vehicleService: VehicleService) {
     @Operation(summary = "Get vehicles", method = "GET", tags = ["Vehicle API"])
     fun get(@ModelAttribute vehicleFilter: VehicleFilterDto, page: Pageable) = ResponseEntity.ok(vehicleService.getVehicles(vehicleFilter, page))
 
-    @GetMapping(params = ["!name", "!coordinatesX", "!coordinatesY", "!enginePower", "!numberOfWheels", "!distanceTravelled", "!fuelType", "!model"])
+    @GetMapping(params = ["!name", "!coordinatesX", "!coordinatesY", "!enginePower", "!numberOfWheels", "!distanceTravelled", "!fuelType"])
     @Operation(summary = "Get vehicles", method = "GET", tags = ["Vehicle API"])
     fun get(page: Pageable) = ResponseEntity.ok(vehicleService.getVehicles(null, page))
 

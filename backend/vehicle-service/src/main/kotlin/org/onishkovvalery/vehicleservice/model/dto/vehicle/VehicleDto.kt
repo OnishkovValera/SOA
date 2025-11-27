@@ -7,7 +7,7 @@ import org.onishkovvalery.vehicleservice.model.entity.Coordinates
 import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
 import java.time.LocalDate
 
-data class VehicleDto (
+data class VehicleDto(
     val id: Long? = null,
     @field:Pattern(regexp = ".*\\S.*")
     val name: String,
