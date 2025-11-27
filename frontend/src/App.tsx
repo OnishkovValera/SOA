@@ -19,7 +19,6 @@ function App() {
 
         const interval2 = setInterval(() => {
             setIsPhonk(true);
-            console.log(("zalupa"))
             if (audioRef.current) audioRef.current.play().then(_ => {
             });
             setTimeout(() => {
@@ -46,16 +45,13 @@ function App() {
         setShowExplosion(false);
     };
 
-    function spinAnimateEvery5Seconds() {
-        return "spin-animate"
-    }
 
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <audio ref={audioRef} src="/sigma.mp3"/>
             <div
                 className={cn(!isPhonk && "hidden", "fixed z-50 h-screen w-screen top-0 left-0 bg-neutral-500/50 blur-lg")}/>
-            <img className={cn(!isPhonk && "hidden", "fixed z-[60] bottom-14 left-1/2 -translate-x-1/2 h-24 w-auto")}
+            <img className={cn(!isPhonk && "hidden", "fixed z-[60] bottom-14 left-1/2 -translate-x-1/2 h-36 w-auto")}
                  src={"/skull.png"}/>
             <div className={cn((isSpinning && !isPhonk) && "animate-spin")} onClick={() => {
                 audioRef.current?.play();
