@@ -36,7 +36,7 @@ server:
     key-store: classpath:keystore.p12
     key-store-password: password
     key-store-type: PKCS12
-    key-alias: myapp2
+    key-alias: myapp
 
   servlet:
     encoding:

@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
 @Configuration
 class GlobalConfig {
     @Bean
-    fun restTemplate(ssl: SslBundles): RestTemplate {
+    fun restTemplate(ssl: SslBundles, ): RestTemplate {
         return RestTemplateBuilder()
             .sslBundle(ssl.getBundle("client"))
             .connectTimeout(
@@ -24,7 +24,7 @@ class GlobalConfig {
                 Duration
                     .of(5, ChronoUnit.SECONDS)
             )
-            .rootUri("http://localhost:8080/api/v1")
+            .rootUri("https://localhost:8080/api/v1")
             .build()
     }
 }

@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
 @Configuration
 class ClientConfig {
     @Bean
-    fun vehicleRestTemplate(ssl: SslBundles): RestTemplate {
+    fun vehicleRestTemplate(ssl: SslBundles, vehicleServiceConfig: VehicleServiceConfig): RestTemplate {
         return RestTemplateBuilder()
             .sslBundle(ssl.getBundle("client"))
             .connectTimeout(
@@ -24,7 +24,7 @@ class ClientConfig {
                 Duration
                     .of(5, ChronoUnit.SECONDS)
             )
-            .rootUri("https://localhost:8080/api/v1")
+            .rootUri("${vehicleServiceConfig.method}://${vehicleServiceConfig.host}:${vehicleServiceConfig.port}/api/v1")
             .build()
 
     }
