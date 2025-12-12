@@ -1,4 +1,4 @@
-package org.onishkovvalery.vehicleservice.model.entity.enums
+package org.onishkovvalery.sharedLibs.common.dto.enums
 
 enum class FuelType {
     KEROSENE,

@@ -1,10 +1,10 @@
-package org.onishkovvalery.vehicleservice.model.dto.vehicle
+package org.onishkovvalery.sharedLibs.common.dto.vehicle
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
-import org.onishkovvalery.vehicleservice.model.entity.Coordinates
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.coordinates.CoordinateDto
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 import java.time.LocalDate
 
 data class VehicleDto(
@@ -12,7 +12,7 @@ data class VehicleDto(
     @field:Pattern(regexp = ".*\\S.*")
     val name: String,
     @field:Valid
-    val coordinate: Coordinates,
+    val coordinate: CoordinateDto,
     val creationDate: LocalDate = LocalDate.now(),
     @field:Positive
     val enginePower: Float,

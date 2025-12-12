@@ -6,9 +6,9 @@ spring:
     name: vehicle-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: admin
-    url: jdbc:postgresql://localhost:5432/vehicleDB?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: ${VEHICLE_DB_USERNAME:postgres}
+    password: ${VEHICLE_DB_PASSWORD:admin}
+    url: jdbc:postgresql://${VEHICLE_DB_URL:localhost}:${VEHICLE_DB_PORT:5432}/${VEHICLE_DB_NAME:vehicleDB}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     hikari:
       connection-init-sql: SET NAMES 'UTF8'
   jpa:
@@ -21,12 +21,33 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/changelog-master.yaml
+  ssl.bundle.pem:
+    client:
+      keystore:
+        certificate: classpath:server.crt
+        private-key: classpath:server.key
+        private-key-password: password
+      truststore:
+        certificate: classpath:server.crt
+
 server:
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: myapp2
+
   servlet:
     encoding:
       charset: UTF-8
-  port: 8080
+  port: ${VEHICLE_SERVICE_PORT:8080}
 
 logging:
   level:
     org.hibernate.type.descriptor.sql: trace
+
+shop-service:
+  port: ${SHOP_SERVICE_PORT:8081}
+  host: ${SHOP_SERVICE_HOST:localhost}
+  method: ${SHOP_SERVICE_METHOD:http}

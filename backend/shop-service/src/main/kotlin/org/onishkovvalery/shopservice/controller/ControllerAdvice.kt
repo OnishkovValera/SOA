@@ -13,7 +13,6 @@ class ControllerAdvice {
 
     @ExceptionHandler(Exception::class)
     fun onUnknownError(e: Exception): ProblemDetail {
-        println(e)
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
     }
 }

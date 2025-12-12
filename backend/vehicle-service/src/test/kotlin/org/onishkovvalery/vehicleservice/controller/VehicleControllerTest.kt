@@ -8,8 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito
 import org.mockito.kotlin.*
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleDto
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleFilterDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleFilterDto
 import org.onishkovvalery.vehicleservice.service.VehicleService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc

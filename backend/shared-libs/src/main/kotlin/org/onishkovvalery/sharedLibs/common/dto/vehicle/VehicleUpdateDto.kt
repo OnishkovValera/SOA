@@ -1,10 +1,10 @@
-package org.onishkovvalery.vehicleservice.model.dto.vehicle
+package org.onishkovvalery.sharedLibs.common.dto.vehicle
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
-import org.onishkovvalery.vehicleservice.model.dto.coordinates.CoordinateUpdateDto
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.coordinates.CoordinateUpdateDto
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 
 data class VehicleUpdateDto(
     @field:Pattern(regexp = ".*\\S.*")

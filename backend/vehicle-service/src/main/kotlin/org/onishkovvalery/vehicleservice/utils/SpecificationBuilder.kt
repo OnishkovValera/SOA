@@ -1,6 +1,6 @@
 package org.onishkovvalery.vehicleservice.utils
 
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 import org.springframework.data.jpa.domain.Specification
 
 class SpecificationBuilder<T> {

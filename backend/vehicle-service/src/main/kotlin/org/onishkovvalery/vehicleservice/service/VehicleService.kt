@@ -1,16 +1,16 @@
 package org.onishkovvalery.vehicleservice.service
 
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleDto
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleFilterDto
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleUpdateDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleFilterDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleUpdateDto
 import org.onishkovvalery.vehicleservice.model.entity.Vehicle
 import org.onishkovvalery.vehicleservice.repository.VehicleRepository
 import org.onishkovvalery.vehicleservice.utils.SpecificationBuilder
 import org.onishkovvalery.vehicleservice.utils.VehicleMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 
 @Service
@@ -24,7 +24,9 @@ class VehicleService(
     }
 
     fun create(vehicle: VehicleDto): VehicleDto {
-        val createdVehicle = vehicleRepository.save(vehicleMapper.dtoToVehicle(vehicle))
+        val vehicleEntity = vehicleMapper.dtoToVehicle(vehicle)
+        vehicleEntity.creationDate = LocalDate.now()
+        val createdVehicle = vehicleRepository.save(vehicleEntity)
         return vehicleMapper.vehicleToDto(createdVehicle)
     }
 

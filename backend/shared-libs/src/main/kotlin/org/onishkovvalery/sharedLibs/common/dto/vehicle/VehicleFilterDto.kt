@@ -1,6 +1,6 @@
-package org.onishkovvalery.vehicleservice.model.dto.vehicle
+package org.onishkovvalery.sharedLibs.common.dto.vehicle
 
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 
 data class VehicleFilterDto(
     val name: String? = null,

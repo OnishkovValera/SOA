@@ -19,7 +19,7 @@ function App() {
 
         const interval2 = setInterval(() => {
             setIsPhonk(true);
-            if (audioRef.current) audioRef.current.play().then(_ => {
+            if (audioRef.current) audioRef.current.play().then(() => {
             });
             setTimeout(() => {
                 setIsPhonk(false);
@@ -48,21 +48,23 @@ function App() {
 
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <audio ref={audioRef} src="/sigma.mp3"/>
-            <div
-                className={cn(!isPhonk && "hidden", "fixed z-50 h-screen w-screen top-0 left-0 bg-neutral-500/50 blur-lg")}/>
+            <audio ref={audioRef} src={"./sigma.mp3"}/>
+            <div className={cn(!isPhonk && "hidden", "fixed z-50 h-screen w-screen top-0 left-0 bg-neutral-500/50 blur-lg")}/>
             <img className={cn(!isPhonk && "hidden", "fixed z-[60] bottom-14 left-1/2 -translate-x-1/2 h-36 w-auto")}
-                 src={"/skull.png"}/>
-            <div className={cn((isSpinning && !isPhonk) && "animate-spin")} onClick={() => {
+                 src={"./skull.png"}/>
+            <div onClick={() => {
                 audioRef.current?.play();
                 audioRef.current?.pause();
             }}>
                 <Header></Header>
-                <MainComponent triggerExplosion={triggerExplosion}></MainComponent>
+                <MainComponent
+                    triggerExplosion={triggerExplosion}
+                    createButtonSpin={isSpinning && !isPhonk}
+                ></MainComponent>
                 {showExplosion && (
                     <video
                         ref={videoRef}
-                        src="/explosion2.webm"
+                        src={"./explosion2.webm"}
                         autoPlay
                         onEnded={handleVideoEnd}
                         className="pointer-events-none fixed inset-0 w-screen h-screen object-fill z-50"

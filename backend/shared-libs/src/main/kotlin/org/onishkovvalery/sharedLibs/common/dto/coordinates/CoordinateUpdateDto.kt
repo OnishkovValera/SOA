@@ -1,4 +1,4 @@
-package org.onishkovvalery.vehicleservice.model.dto.coordinates
+package org.onishkovvalery.sharedLibs.common.dto.coordinates
 
 import jakarta.validation.constraints.Max
 

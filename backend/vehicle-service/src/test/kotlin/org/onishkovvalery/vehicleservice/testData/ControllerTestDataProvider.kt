@@ -2,10 +2,11 @@ package org.onishkovvalery.vehicleservice.testData
 
 import org.hibernate.internal.util.collections.CollectionHelper.listOf
 import org.junit.jupiter.params.provider.Arguments
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleDto
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleFilterDto
+import org.onishkovvalery.sharedLibs.common.dto.coordinates.CoordinateDto
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleFilterDto
 import org.onishkovvalery.vehicleservice.model.entity.Coordinates
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.util.LinkedMultiValueMap
@@ -22,7 +23,7 @@ fun validRequest(): List<Arguments> = listOf(
                 VehicleDto(
                     1,
                     "audi",
-                    Coordinates(
+                    CoordinateDto(
                         1F,
                         2.0
                     ),
@@ -45,7 +46,7 @@ fun validRequest(): List<Arguments> = listOf(
                 VehicleDto(
                     1,
                     "audi",
-                    Coordinates(
+                    CoordinateDto(
                         1F,
                         2.0
                     ),
@@ -68,7 +69,7 @@ fun validRequest(): List<Arguments> = listOf(
                 VehicleDto(
                     1,
                     "audi",
-                    Coordinates(
+                    CoordinateDto(
                         1F,
                         2.0
                     ),

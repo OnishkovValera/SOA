@@ -1,6 +1,6 @@
 package org.onishkovvalery.vehicleservice.controller
 
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 import org.onishkovvalery.vehicleservice.service.SearchService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

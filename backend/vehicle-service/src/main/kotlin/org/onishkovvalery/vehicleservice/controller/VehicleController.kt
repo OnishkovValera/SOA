@@ -2,9 +2,9 @@ package org.onishkovvalery.vehicleservice.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleDto
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleFilterDto
-import org.onishkovvalery.vehicleservice.model.dto.vehicle.VehicleUpdateDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleFilterDto
+import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleUpdateDto
 import org.onishkovvalery.vehicleservice.service.VehicleService
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity

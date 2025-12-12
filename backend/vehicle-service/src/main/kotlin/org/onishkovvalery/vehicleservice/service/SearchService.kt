@@ -1,7 +1,7 @@
 package org.onishkovvalery.vehicleservice.service
 
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 import org.onishkovvalery.vehicleservice.model.entity.Vehicle
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
 import org.onishkovvalery.vehicleservice.repository.VehicleRepository
 import org.onishkovvalery.vehicleservice.utils.SpecificationBuilder
 import org.onishkovvalery.vehicleservice.utils.VehicleMapper

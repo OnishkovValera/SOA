@@ -1,6 +1,36 @@
 spring:
   application:
     name: shop-service
-server:
-  port: 8081
+  mvc:
+    contentnegotiation:
+      favor-path-extension: false
+      default-content-types: application/json
+      media-types:
+        json: application/json
+      favor-parameter: false
+  ssl.bundle.pem:
+    client:
+      keystore:
+        certificate: classpath:server.crt
+        private-key: classpath:server.key
+        private-key-password: password
+      truststore:
+        certificate: classpath:server.crt
 
+
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: myapp2
+  servlet:
+    encoding:
+      charset: UTF-8
+  port: ${SHOP_SERVICE_PORT:8081}
+
+vehicle-service:
+  port: ${VEHICLE_SERVICE_PORT:8080}
+  host: ${VEHICLE_SERVICE_HOST:localhost}
+  method: ${VEHICLE_SERVICE_METHOD:https}

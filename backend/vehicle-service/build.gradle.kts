@@ -13,7 +13,7 @@ description = "vehicle-service"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
@@ -32,7 +32,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation(project(":shared-libs"))
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.liquibase:liquibase-core")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
@@ -55,7 +56,8 @@ dependencies {
 }
 
 kotlin {
-	compilerOptions {
+    jvmToolchain(17)
+    compilerOptions {
 		freeCompilerArgs.addAll("-Xjsr305=strict")
 	}
 }

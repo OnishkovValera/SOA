@@ -6,9 +6,10 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.PrePersist
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
-import org.onishkovvalery.vehicleservice.model.entity.enums.FuelType
+import org.onishkovvalery.sharedLibs.common.dto.enums.FuelType
 import java.time.LocalDate
 
 @Entity
@@ -21,7 +22,7 @@ class Vehicle(
 
     var coordinate: Coordinates,
 
-    val creationDate: LocalDate = LocalDate.now(),
+    var creationDate: LocalDate = LocalDate.now(),
 
     @field:Positive
     var enginePower: Float,

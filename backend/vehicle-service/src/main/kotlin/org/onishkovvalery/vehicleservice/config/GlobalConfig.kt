@@ -1,19 +1,19 @@
-package org.onishkovvalery.shopservice.config
+package org.onishkovvalery.vehicleservice.config
 
+import org.springframework.boot.autoconfigure.web.client.RestClientSsl
+import org.springframework.boot.ssl.SslBundle
 import org.springframework.boot.ssl.SslBundles
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-
 @Configuration
-class ClientConfig {
+class GlobalConfig {
     @Bean
-    fun vehicleRestTemplate(ssl: SslBundles): RestTemplate {
+    fun restTemplate(ssl: SslBundles): RestTemplate {
         return RestTemplateBuilder()
             .sslBundle(ssl.getBundle("client"))
             .connectTimeout(
@@ -24,16 +24,7 @@ class ClientConfig {
                 Duration
                     .of(5, ChronoUnit.SECONDS)
             )
-            .rootUri("https://localhost:8080/api/v1")
+            .rootUri("http://localhost:8080/api/v1")
             .build()
-
     }
-
-    @Bean
-    fun jacksonConverter(): MappingJackson2HttpMessageConverter {
-        return MappingJackson2HttpMessageConverter()
-    }
-
-
-
 }
