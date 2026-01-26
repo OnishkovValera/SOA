@@ -38,6 +38,7 @@ dependencies {
 	implementation("org.liquibase:liquibase-core")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 	implementation("org.mapstruct:mapstruct:1.6.3")
+	implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
 	kapt("org.mapstruct:mapstruct-processor:1.6.3")
 
 	compileOnly("org.projectlombok:lombok")
@@ -55,6 +56,11 @@ dependencies {
 
 }
 
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
+	}
+}
 kotlin {
     jvmToolchain(17)
     compilerOptions {
