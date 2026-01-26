@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type {Vehicle} from '@/lib/dto.tsx';
 
-const API_BASE_URL = 'https://helios.cs.ifmo.ru:26367/api/v1/vehicles';
+const API_BASE_URL = 'https://localhost/api/v1/vehicles';
 
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -23,7 +23,7 @@ export interface VehicleFilterDto {
     enginePower?: number;
     numberOfWheels?: number;
     distanceTravelled?: number;
-    fuelType?: string;
+    fuelType?: string | null;
     sort?: string;
 }
 
@@ -50,15 +50,25 @@ export const vehicleService = {
         if (filter?.fuelType != null) {
             const axiosInstanceForSecondService = axios.create(
                 {
-                    baseURL: 'https://helios.cs.ifmo.ru:26368/api/v1/shop',
+                    baseURL: 'https://localhost/shop/api/v1/shop',
                     timeout: 10000,
                 }
             )
-            const response = await axiosInstanceForSecondService.get<VehicleResponse>(`/search/by-type/${filter.fuelType}`);
-            filter.fuelType = null
-            return response.data;
+
+            const response: any = await axiosInstanceForSecondService.get<VehicleResponse>(`/search/by-type/${filter.fuelType}`);
+            console.log(response)
+            return JSON.parse(response).data.body;
+        } else if (filter?.name) {
+            const response = await axiosInstance.get<VehicleResponse>('/search/name-contains', { params: { name: filter.name } });
+            return {
+                content: response.data as any,
+                number: 0,
+                size: 20,
+                totalElements: (response.data as any).length,
+                totalPages: 1
+            };
         } else {
-            const response = await axiosInstance.get<VehicleResponse>('', paramsForSearch);
+            const response = await axiosInstance.get<VehicleResponse>('', { params: paramsForSearch });
             return response.data;
         }
     },

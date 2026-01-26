@@ -1,0 +1,58 @@
+spring:
+  cloud:
+    consul:
+      host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
+      port: ${SPRING_CLOUD_CONSUL_PORT:8500}
+      discovery:
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        instance-id: ${spring.application.name}:${random.value}
+        service-name: shop-service
+        register: true
+  main:
+    banner-mode: "off"
+    log-startup-info: false
+  application:
+    name: shop-service
+  mvc:
+    contentnegotiation:
+      favor-path-extension: false
+      default-content-types: application/json
+      media-types:
+        json: application/json
+      favor-parameter: false
+  ssl.bundle.pem:
+    client:
+      keystore:
+        certificate: classpath:server.crt
+        private-key: classpath:server.key
+        private-key-password: password
+      truststore:
+        certificate: classpath:server.crt
+
+
+server:
+  ssl:
+    enabled: false
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: myapp
+  servlet:
+    encoding:
+      charset: UTF-8
+  port: ${SHOP_SERVICE_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+vehicle-service:
+  port: ${VEHICLE_SERVICE_PORT:8080}
+  host: ${VEHICLE_SERVICE_HOST:localhost}
+  method: ${VEHICLE_SERVICE_METHOD:http}

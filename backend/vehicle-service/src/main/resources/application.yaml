@@ -1,4 +1,14 @@
 spring:
+  cloud:
+    consul:
+      host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
+      port: ${SPRING_CLOUD_CONSUL_PORT:8500}
+      discovery:
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        instance-id: ${spring.application.name}:${random.value}
+        hostname: ${SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME:localhost}
+        service-name: vehicle-service
   jackson:
     deserialization:
       fail-on-missing-creator-properties: true
@@ -42,6 +52,15 @@ server:
     encoding:
       charset: UTF-8
   port: ${VEHICLE_SERVICE_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
 
 logging:
   level:

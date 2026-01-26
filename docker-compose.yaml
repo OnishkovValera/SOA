@@ -1,0 +1,122 @@
+services:
+  consul:
+    image: hashicorp/consul:1.15
+    container_name: consul
+    ports:
+      - "8500:8500"
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+    command: "agent -dev -client=0.0.0.0"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: vehicleDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vehicleDB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  vehicle-service-1:
+    build:
+      context: ./backend
+      dockerfile: Vehicle.Dockerfile
+    environment:
+      VEHICLE_DB_URL: db
+      VEHICLE_DB_NAME: vehicleDB
+      VEHICLE_DB_USERNAME: postgres
+      VEHICLE_DB_PASSWORD: admin
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME: vehicle-service-1
+    depends_on:
+      db:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+
+  vehicle-service-2:
+    build:
+      context: ./backend
+      dockerfile: Vehicle.Dockerfile
+    environment:
+      VEHICLE_DB_URL: db
+      VEHICLE_DB_NAME: vehicleDB
+      VEHICLE_DB_USERNAME: postgres
+      VEHICLE_DB_PASSWORD: admin
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME: vehicle-service-2
+    depends_on:
+      db:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+
+  shop-service-1:
+    build:
+      context: ./backend
+      dockerfile: Shop.Dockerfile
+    environment:
+      VEHICLE_SERVICE_HOST: haproxy
+      VEHICLE_SERVICE_PORT: 80
+      VEHICLE_SERVICE_METHOD: http
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      db:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+
+  shop-service-2:
+    build:
+      context: ./backend
+      dockerfile: Shop.Dockerfile
+    environment:
+      VEHICLE_SERVICE_HOST: haproxy
+      VEHICLE_SERVICE_PORT: 80
+      VEHICLE_SERVICE_METHOD: http
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    depends_on:
+      db:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+
+  haproxy:
+    image: haproxy:2.8
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./haproxy/haproxy.pem:/usr/local/etc/haproxy/haproxy.pem:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - vehicle-service-1
+      - vehicle-service-2
+      - shop-service-1
+      - shop-service-2
+      - frontend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+volumes:
+  pg_data:
