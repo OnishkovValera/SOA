@@ -55,6 +55,7 @@ export const vehicleService = {
                 }
             )
             const response = await axiosInstanceForSecondService.get<VehicleResponse>(`/search/by-type/${filter.fuelType}`);
+            filter.fuelType = null
             return response.data;
         } else {
             const response = await axiosInstance.get<VehicleResponse>('', paramsForSearch);
