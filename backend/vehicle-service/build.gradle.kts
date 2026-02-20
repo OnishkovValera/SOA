@@ -32,6 +32,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-web-services")
     implementation(project(":shared-libs"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -39,6 +40,7 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 	implementation("org.mapstruct:mapstruct:1.6.3")
 	implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
+	implementation("wsdl4j:wsdl4j:1.6.3")
 	kapt("org.mapstruct:mapstruct-processor:1.6.3")
 
 	compileOnly("org.projectlombok:lombok")

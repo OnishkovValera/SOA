@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://onishkovvalery.org/vehicleservice/soap"
+           xmlns:tns="http://onishkovvalery.org/vehicleservice/soap"
+           elementFormDefault="qualified">
+
+    <xs:element name="getVehiclesRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="fuelType" type="xs:string" minOccurs="0"/>
+                <xs:element name="page" type="xs:int" minOccurs="0"/>
+                <xs:element name="size" type="xs:int" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getVehiclesResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="jsonPayload" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="updateVehicleDistanceRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:long"/>
+                <xs:element name="distanceTravelled" type="xs:int" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="updateVehicleDistanceResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="jsonPayload" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <http:listener-config name="httpListenerConfig"
+                          host="0.0.0.0"
+                          port="8081"/>
+
+    <http:request-config name="soapRequestConfig"
+                         host="vehicle-service-1"
+                         port="8080"
+                         protocol="HTTP"/>
+
+    <flow name="getVehiclesFlow">
+        <http:listener config-ref="httpListenerConfig"
+                       path="/api/v1/vehicles"
+                       allowedMethods="GET"/>
+
+        <set-variable variableName="fuelType" value="#[message.inboundProperties.'http.query.params'.fuelType]"/>
+        <set-variable variableName="page" value="#[message.inboundProperties.'http.query.params'.page != null ? message.inboundProperties.'http.query.params'.page : '0']"/>
+        <set-variable variableName="size" value="#[message.inboundProperties.'http.query.params'.size != null ? message.inboundProperties.'http.query.params'.size : '20']"/>
+
+        <set-payload value="#['&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:soap=&quot;http://onishkovvalery.org/vehicleservice/soap&quot;&gt;' +
+                              '&lt;soapenv:Header/&gt;&lt;soapenv:Body&gt;&lt;soap:getVehiclesRequest&gt;' +
+                              (flowVars.fuelType != null ? '&lt;soap:fuelType&gt;' + flowVars.fuelType + '&lt;/soap:fuelType&gt;' : '') +
+                              '&lt;soap:page&gt;' + flowVars.page + '&lt;/soap:page&gt;' +
+                              '&lt;soap:size&gt;' + flowVars.size + '&lt;/soap:size&gt;' +
+                              '&lt;/soap:getVehiclesRequest&gt;&lt;/soapenv:Body&gt;&lt;/soapenv:Envelope&gt;']"/>
+
+        <http:request config-ref="soapRequestConfig" path="/ws" method="POST">
+            <http:request-builder>
+                <http:header headerName="Content-Type" value="text/xml;charset=UTF-8"/>
+            </http:request-builder>
+        </http:request>
+
+        <object-to-string-transformer/>
+        <set-payload value="#[payload.toString().replaceAll('(?s).*&lt;[^&gt;]*jsonPayload&gt;(.*)&lt;/[^&gt;]*jsonPayload&gt;.*', '$1')]"/>
+        <set-property propertyName="Content-Type" value="application/json"/>
+    </flow>
+
+    <flow name="updateVehicleFlow">
+        <http:listener config-ref="httpListenerConfig"
+                       path="/api/v1/vehicles/{id}"
+                       allowedMethods="PUT"/>
+
+        <set-variable variableName="vehicleId" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+
+        <set-payload value="#['&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:soap=&quot;http://onishkovvalery.org/vehicleservice/soap&quot;&gt;' +
+                              '&lt;soapenv:Header/&gt;&lt;soapenv:Body&gt;&lt;soap:updateVehicleDistanceRequest&gt;' +
+                              '&lt;soap:id&gt;' + flowVars.vehicleId + '&lt;/soap:id&gt;' +
+                              '&lt;soap:distanceTravelled&gt;1&lt;/soap:distanceTravelled&gt;' +
+                              '&lt;/soap:updateVehicleDistanceRequest&gt;&lt;/soapenv:Body&gt;&lt;/soapenv:Envelope&gt;']"/>
+
+        <http:request config-ref="soapRequestConfig" path="/ws" method="POST">
+            <http:request-builder>
+                <http:header headerName="Content-Type" value="text/xml;charset=UTF-8"/>
+            </http:request-builder>
+        </http:request>
+
+        <object-to-string-transformer/>
+        <set-payload value="#[payload.toString().replaceAll('(?s).*&lt;[^&gt;]*jsonPayload&gt;(.*)&lt;/[^&gt;]*jsonPayload&gt;.*', '$1')]"/>
+        <set-property propertyName="Content-Type" value="application/json"/>
+    </flow>
+
+</mule>

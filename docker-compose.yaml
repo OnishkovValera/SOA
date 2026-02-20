@@ -71,8 +71,8 @@ services:
       context: ./backend
       dockerfile: Shop.Dockerfile
     environment:
-      VEHICLE_SERVICE_HOST: haproxy
-      VEHICLE_SERVICE_PORT: 80
+      VEHICLE_SERVICE_HOST: mule-esb
+      VEHICLE_SERVICE_PORT: 8081
       VEHICLE_SERVICE_METHOD: http
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_CLOUD_CONSUL_PORT: 8500
@@ -81,14 +81,16 @@ services:
         condition: service_healthy
       consul:
         condition: service_healthy
+      mule-esb:
+        condition: service_started
 
   shop-service-2:
     build:
       context: ./backend
       dockerfile: Shop.Dockerfile
     environment:
-      VEHICLE_SERVICE_HOST: haproxy
-      VEHICLE_SERVICE_PORT: 80
+      VEHICLE_SERVICE_HOST: mule-esb
+      VEHICLE_SERVICE_PORT: 8081
       VEHICLE_SERVICE_METHOD: http
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_CLOUD_CONSUL_PORT: 8500
@@ -97,6 +99,16 @@ services:
         condition: service_healthy
       consul:
         condition: service_healthy
+      mule-esb:
+        condition: service_started
+
+  mule-esb:
+    image: vromero/mule:latest
+    volumes:
+      - ./mule/apps/soap-rest-bridge:/opt/mule/apps/soap-rest-bridge:ro
+    depends_on:
+      - vehicle-service-1
+      - vehicle-service-2
 
   haproxy:
     image: haproxy:2.8
@@ -111,6 +123,7 @@ services:
       - vehicle-service-2
       - shop-service-1
       - shop-service-2
+      - mule-esb
       - frontend
 
   frontend:

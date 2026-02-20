@@ -70,3 +70,7 @@ shop-service:
   port: ${SHOP_SERVICE_PORT:8081}
   host: ${SHOP_SERVICE_HOST:localhost}
   method: ${SHOP_SERVICE_METHOD:http}
+
+app:
+  rest:
+    enabled: ${VEHICLE_REST_ENABLED:true}

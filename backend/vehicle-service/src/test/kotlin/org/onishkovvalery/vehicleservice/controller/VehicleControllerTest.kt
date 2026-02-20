@@ -137,7 +137,6 @@ class VehicleControllerTest @Autowired constructor(
                 any()
             )
         ).thenReturn(mock<VehicleDto>())
-
         //when
         val result = mockMvc.perform(put("/api/v1/vehicles/1")
             .contentType("application/json")

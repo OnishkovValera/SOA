@@ -6,12 +6,14 @@ import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleDto
 import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleFilterDto
 import org.onishkovvalery.sharedLibs.common.dto.vehicle.VehicleUpdateDto
 import org.onishkovvalery.vehicleservice.service.VehicleService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/vehicles")
+@ConditionalOnProperty(name = ["app.rest.enabled"], havingValue = "true", matchIfMissing = true)
 class VehicleController(private val vehicleService: VehicleService) {
 
     @GetMapping

@@ -12,10 +12,16 @@ open class ShopEJB : ShopRemote {
     private val logger = LoggerFactory.getLogger(ShopEJB::class.java)
     private val client = ClientBuilder.newClient()
     
-    private val host = System.getProperty("vehicle.service.host") ?: "localhost"
-    private val port = System.getProperty("vehicle.service.port") ?: "80"
-    private val method = System.getProperty("vehicle.service.method") ?: "http"
-    private val rootUri = "$method://haproxy:$port/api/v1"
+    private val host = System.getenv("VEHICLE_SERVICE_HOST")
+        ?: System.getProperty("vehicle.service.host")
+        ?: "localhost"
+    private val port = System.getenv("VEHICLE_SERVICE_PORT")
+        ?: System.getProperty("vehicle.service.port")
+        ?: "80"
+    private val method = System.getenv("VEHICLE_SERVICE_METHOD")
+        ?: System.getProperty("vehicle.service.method")
+        ?: "http"
+    private val rootUri = "$method://$host:$port/api/v1"
     private val URI_FOR_VEHICLES = "vehicles"
 
     override fun getVehiclesByFuelType(fuelType: String?, pageNumber: Int, pageSize: Int): String? {
