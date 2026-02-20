@@ -23,6 +23,7 @@
         <set-variable variableName="fuelType" value="#[message.inboundProperties.'http.query.params'.fuelType]"/>
         <set-variable variableName="page" value="#[message.inboundProperties.'http.query.params'.page != null ? message.inboundProperties.'http.query.params'.page : '0']"/>
         <set-variable variableName="size" value="#[message.inboundProperties.'http.query.params'.size != null ? message.inboundProperties.'http.query.params'.size : '20']"/>
+        <logger level="INFO" message="MULE getVehiclesFlow REST request: fuelType=#[flowVars.fuelType], page=#[flowVars.page], size=#[flowVars.size]"/>
 
         <set-payload value="#['&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:soap=&quot;http://onishkovvalery.org/vehicleservice/soap&quot;&gt;' +
                               '&lt;soapenv:Header/&gt;&lt;soapenv:Body&gt;&lt;soap:getVehiclesRequest&gt;' +
@@ -38,6 +39,7 @@
         </http:request>
 
         <object-to-string-transformer/>
+        <logger level="INFO" message="MULE getVehiclesFlow SOAP response: #[payload]"/>
         <set-payload value="#[payload.toString().replaceAll('(?s).*&lt;[^&gt;]*jsonPayload&gt;(.*)&lt;/[^&gt;]*jsonPayload&gt;.*', '$1')]"/>
         <set-property propertyName="Content-Type" value="application/json"/>
     </flow>
@@ -48,6 +50,7 @@
                        allowedMethods="PUT"/>
 
         <set-variable variableName="vehicleId" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+        <logger level="INFO" message="MULE updateVehicleFlow REST request: vehicleId=#[flowVars.vehicleId]"/>
 
         <set-payload value="#['&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:soap=&quot;http://onishkovvalery.org/vehicleservice/soap&quot;&gt;' +
                               '&lt;soapenv:Header/&gt;&lt;soapenv:Body&gt;&lt;soap:updateVehicleDistanceRequest&gt;' +
@@ -62,6 +65,7 @@
         </http:request>
 
         <object-to-string-transformer/>
+        <logger level="INFO" message="MULE updateVehicleFlow SOAP response: #[payload]"/>
         <set-payload value="#[payload.toString().replaceAll('(?s).*&lt;[^&gt;]*jsonPayload&gt;(.*)&lt;/[^&gt;]*jsonPayload&gt;.*', '$1')]"/>
         <set-property propertyName="Content-Type" value="application/json"/>
     </flow>
